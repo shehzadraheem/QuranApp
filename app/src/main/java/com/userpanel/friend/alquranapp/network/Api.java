@@ -27,4 +27,14 @@ public class Api {
                 .build();
         return instance;
     }
+
+    public static Retrofit getTafseerInstance(){
+        if(instance!=null){
+            instance=null;
+        }
+        instance = new Retrofit.Builder().baseUrl("http://api.quran-tafseer.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        return instance;
+    }
 }

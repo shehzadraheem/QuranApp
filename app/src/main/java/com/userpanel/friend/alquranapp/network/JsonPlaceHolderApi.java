@@ -2,6 +2,7 @@ package com.userpanel.friend.alquranapp.network;
 
 import com.userpanel.friend.alquranapp.response.SurahDetailResponse;
 import com.userpanel.friend.alquranapp.response.SurahResponse;
+import com.userpanel.friend.alquranapp.response.TafseerBookResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -15,4 +16,7 @@ public interface JsonPlaceHolderApi {
     @GET("sura/{language}/{id}")
     Call<SurahDetailResponse> getSurahDetail(@Path("language")String lan,
                                              @Path("id") int surahId);
+
+    @GET("tafseer")
+    Call<TafseerBookResponse> getTafseerBooks();
 }

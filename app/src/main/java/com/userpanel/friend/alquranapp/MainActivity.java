@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements SurahListener {
     private List<Surah> list;
     private SurahViewModel surahViewModel;
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements SurahListener {
             }
 
             if (list.size() != 0) {
-                surahAdapter = new SurahAdapter(this, list, this::onSurahListener);
+                surahAdapter = new SurahAdapter(this, list, this);
                 recyclerView.setAdapter(surahAdapter);
                 surahAdapter.notifyDataSetChanged();
             }

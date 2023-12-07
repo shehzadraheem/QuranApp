@@ -27,14 +27,16 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.userpanel.friend.alquranapp.R;
 import com.userpanel.friend.alquranapp.adapter.SurahDetailAdapter;
 import com.userpanel.friend.alquranapp.common.Common;
+import com.userpanel.friend.alquranapp.listener.TafseerListener;
 import com.userpanel.friend.alquranapp.model.SurahDetail;
 import com.userpanel.friend.alquranapp.viewmodel.SurahDetailViewModel;
+import com.userpanel.friend.alquranapp.viewmodel.TafseerBookViewModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SurahDetailActivity extends AppCompatActivity {
+public class SurahDetailActivity extends AppCompatActivity implements TafseerListener {
 
     private TextView surahName,surahType,surahTranslation;
     private int no;
@@ -42,6 +44,8 @@ public class SurahDetailActivity extends AppCompatActivity {
     private List<SurahDetail> list;
     private SurahDetailAdapter adapter;
     private SurahDetailViewModel surahDetailViewModel;
+
+    private TafseerBookViewModel tafseerBookViewModel;
     private String urdu = "urdu_junagarhi";
     private String hindi = "hindi_omari";
     private String english = "english_hilali_khan";
@@ -197,7 +201,7 @@ public class SurahDetailActivity extends AppCompatActivity {
             }
 
             if(list.size()!=0){
-                adapter = new SurahDetailAdapter(this,list);
+                adapter = new SurahDetailAdapter(this,list, this);
                 recyclerView.setAdapter(adapter);
             }
 
@@ -292,7 +296,7 @@ public class SurahDetailActivity extends AppCompatActivity {
     }
 
 
-    private Runnable updater = new Runnable() {
+    private final Runnable updater = new Runnable() {
         @Override
         public void run() {
             updateSeekBar();
@@ -357,5 +361,20 @@ public class SurahDetailActivity extends AppCompatActivity {
             playButton.setImageResource(R.drawable.ic_baseline_play_circle_filled_24);
         }
         super.onPause();
+    }
+
+    @Override
+    public void onTafseerListener(int position) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(SurahDetailActivity.this,
+                R.style.BottomSheetDialogTheme);
+
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        View view = inflater.inflate(R.layout.bottom_sheet_layout,
+                findViewById(R.id.sheetContainer));
+
+
+
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
     }
 }
