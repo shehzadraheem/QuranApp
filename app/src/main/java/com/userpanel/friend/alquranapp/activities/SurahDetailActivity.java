@@ -1,8 +1,6 @@
 package com.userpanel.friend.alquranapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,11 +13,14 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,8 +30,10 @@ import com.userpanel.friend.alquranapp.adapter.SurahDetailAdapter;
 import com.userpanel.friend.alquranapp.common.Common;
 import com.userpanel.friend.alquranapp.listener.TafseerListener;
 import com.userpanel.friend.alquranapp.model.SurahDetail;
+import com.userpanel.friend.alquranapp.model.TafseerBook;
 import com.userpanel.friend.alquranapp.viewmodel.SurahDetailViewModel;
 import com.userpanel.friend.alquranapp.viewmodel.TafseerBookViewModel;
+import com.userpanel.friend.alquranapp.viewmodel.TafseerViewModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,13 +42,13 @@ import java.util.List;
 public class SurahDetailActivity extends AppCompatActivity implements TafseerListener {
 
     private TextView surahName,surahType,surahTranslation;
-    private int no;
+    private int surahNumber;
     private RecyclerView recyclerView;
     private List<SurahDetail> list;
     private SurahDetailAdapter adapter;
     private SurahDetailViewModel surahDetailViewModel;
-
     private TafseerBookViewModel tafseerBookViewModel;
+    private TafseerViewModel tafseerViewModel;
     private String urdu = "urdu_junagarhi";
     private String hindi = "hindi_omari";
     private String english = "english_hilali_khan";
@@ -75,7 +78,7 @@ public class SurahDetailActivity extends AppCompatActivity implements TafseerLis
 
         init();
 
-        no = getIntent().getIntExtra(Common.SURAH_NO,0);
+        surahNumber = getIntent().getIntExtra(Common.SURAH_NO,0);
         surahName.setText(getIntent().getStringExtra(Common.SURAH_NAME));
 
         surahType.setText(getIntent().getStringExtra(Common.SURAH_TYPE)+" "+
@@ -86,7 +89,7 @@ public class SurahDetailActivity extends AppCompatActivity implements TafseerLis
         recyclerView.setHasFixedSize(true);
         list = new ArrayList<>();
 
-        surahTranslation(urdu,no);
+        surahTranslation(urdu, surahNumber);
 
         try {
             listenAudio(qariAB);
@@ -143,7 +146,7 @@ public class SurahDetailActivity extends AppCompatActivity implements TafseerLis
                             lan = english;
                         }
 
-                        surahTranslation(lan,no);
+                        surahTranslation(lan, surahNumber);
 
                         int id = audio_group.getCheckedRadioButtonId();
                         qariSelectButton = view.findViewById(id);
@@ -282,12 +285,12 @@ public class SurahDetailActivity extends AppCompatActivity implements TafseerLis
 
     private void preparedMediaPlayer(String qari) throws IOException {
 
-        if(no<10){
-            str = "00"+no;
-        }else if(no<100){
-            str = "0"+no;
-        }else if(no>=100){
-            str = String.valueOf(no);
+        if(surahNumber <10){
+            str = "00"+ surahNumber;
+        }else if(surahNumber <100){
+            str = "0"+ surahNumber;
+        }else if(surahNumber >=100){
+            str = String.valueOf(surahNumber);
         }
         //https://download.quranicaudio.com/quran/abdul_wadood_haneef_rare/001.mp3
         mediaPlayer.setDataSource("https://download.quranicaudio.com/quran/"+qari+"/"+str.trim()+".mp3");
@@ -364,17 +367,61 @@ public class SurahDetailActivity extends AppCompatActivity implements TafseerLis
     }
 
     @Override
-    public void onTafseerListener(int position) {
+    public void onTafseerListener(int ayaNumber) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(SurahDetailActivity.this,
                 R.style.BottomSheetDialogTheme);
 
         LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-        View view = inflater.inflate(R.layout.bottom_sheet_layout,
-                findViewById(R.id.sheetContainer));
+        View view = inflater.inflate(R.layout.tafseer_bottom_sheet_layout,
+                findViewById(R.id.tafseerSheetContainer));
 
+        final Spinner spinner = (Spinner) view.findViewById(R.id.spinner);
+        final TextView tafseer = view.findViewById(R.id.tafseer);
 
+        List<String> books = new ArrayList<>();
+        List<TafseerBook> tafseerBooks = new ArrayList<>();
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, books);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(dataAdapter);
+
+        tafseerViewModel = new ViewModelProvider(this).get(TafseerViewModel.class);
+        tafseerViewModel.getTafseer(1, surahNumber, ayaNumber + 1)
+                .observe(SurahDetailActivity.this, tafseerResponse -> {
+            tafseer.setText(tafseerResponse.getText());
+        });
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TafseerBook selectedBook = tafseerBooks.get(position);
+                int selectedBookId = selectedBook.getId(); // Assuming getBookId() method exists
+                tafseerViewModel.getTafseer(selectedBookId, surahNumber, ayaNumber + 1)
+                        .observe(SurahDetailActivity.this, tafseerResponse -> {
+                    tafseer.setText(tafseerResponse.getText());
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Handle case when nothing is selected if necessary
+            }
+        });
 
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
+
+        tafseerBookViewModel = new ViewModelProvider(this).get(TafseerBookViewModel.class);
+        tafseerBookViewModel.getTafseerBooks().observe(this, tafseerBookResponse -> {
+            if (tafseerBookResponse != null) {
+                books.clear();
+                tafseerBooks.clear();
+                for (TafseerBook response : tafseerBookResponse) {
+                    books.add(response.getBookName()); // Assuming getBookName() gives the name of the book
+                    tafseerBooks.add(response); // Store the whole object for later use
+                }
+                dataAdapter.notifyDataSetChanged(); // Notify adapter about data changes
+            }
+        });
     }
 }

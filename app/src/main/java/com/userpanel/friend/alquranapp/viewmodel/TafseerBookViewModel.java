@@ -1,8 +1,11 @@
 package com.userpanel.friend.alquranapp.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.userpanel.friend.alquranapp.model.TafseerBook;
 import com.userpanel.friend.alquranapp.repository.TafseerBookRepo;
-import com.userpanel.friend.alquranapp.response.TafseerBookResponse;
+
+import java.util.List;
 
 public class TafseerBookViewModel extends ViewModel {
 
@@ -11,7 +14,7 @@ public class TafseerBookViewModel extends ViewModel {
     public TafseerBookViewModel() {
         tafseerBookRepo = new TafseerBookRepo();
     }
-    public LiveData<TafseerBookResponse> getTafseerBooks(){
+    public LiveData<List<TafseerBook>> getTafseerBooks(){
         return tafseerBookRepo.getTafseerBooks();
     }
 }

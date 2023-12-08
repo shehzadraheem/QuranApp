@@ -1,10 +1,17 @@
 package com.userpanel.friend.alquranapp.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class TafseerBook {
+    @SerializedName("id")
     private int id;
+    @SerializedName("name")
     private String name;
+    @SerializedName("language")
     private String language;
+    @SerializedName("author")
     private String author;
+    @SerializedName("book_name")
     private String bookName;
 
     // Constructor

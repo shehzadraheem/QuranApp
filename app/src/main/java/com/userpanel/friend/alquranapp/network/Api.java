@@ -1,7 +1,5 @@
 package com.userpanel.friend.alquranapp.network;
 
-import com.google.gson.Gson;
-
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -28,11 +26,21 @@ public class Api {
         return instance;
     }
 
-    public static Retrofit getTafseerInstance(){
+    public static Retrofit getTafseerBookInstance(){
         if(instance!=null){
             instance=null;
         }
         instance = new Retrofit.Builder().baseUrl("http://api.quran-tafseer.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        return instance;
+    }
+
+    public static Retrofit getTafseerInstance(){
+        if(instance!=null){
+            instance=null;
+        }
+        instance = new Retrofit.Builder().baseUrl("http://api.quran-tafseer.com/tafseer/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         return instance;
