@@ -1,5 +1,6 @@
 package com.userpanel.friend.alquranapp.network;
 
+import com.userpanel.friend.alquranapp.model.AyaOfTheDay;
 import com.userpanel.friend.alquranapp.model.Tafseer;
 import com.userpanel.friend.alquranapp.model.TafseerBook;
 import com.userpanel.friend.alquranapp.response.SurahDetailResponse;
@@ -26,4 +27,7 @@ public interface JsonPlaceHolderApi {
     @GET("{tafseerId}/{suraNumber}/{ayaNumber}")
     Call<Tafseer> getTafseer(@Path("tafseerId")int tafseerId ,
                              @Path("suraNumber")int suraNumber, @Path("ayaNumber")int ayaNumber);
+
+    @GET("{number}/editions/quran-uthmani,en.asad,en.pickthall")
+    Call<AyaOfTheDay> getAyaOfTheDay(@Path("number")int number);
 }

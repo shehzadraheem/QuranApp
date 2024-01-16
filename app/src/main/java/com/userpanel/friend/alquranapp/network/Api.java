@@ -45,4 +45,14 @@ public class Api {
                 .build();
         return instance;
     }
+
+    public static Retrofit getAyaOfTheDay(){
+        if(instance!=null){
+            instance=null;
+        }
+        instance = new Retrofit.Builder().baseUrl("https://api.alquran.cloud/v1/ayah/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        return instance;
+    }
 }
